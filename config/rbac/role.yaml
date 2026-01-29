@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - kubearchive.org
+  resources:
+  - kubearchiveinstallations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - kubearchive.org
+  resources:
+  - kubearchiveinstallations/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - kubearchive.org
+  resources:
+  - kubearchiveinstallations/status
+  verbs:
+  - get
+  - patch
+  - update
