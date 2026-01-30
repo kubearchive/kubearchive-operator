@@ -31,7 +31,7 @@ import (
 )
 
 // namespace where the project is deployed in
-const namespace = "kubearchive-operator-system"
+const namespace = "kubearchive-operator"
 
 // serviceAccountName created for the project
 const serviceAccountName = "kubearchive-operator-controller-manager"

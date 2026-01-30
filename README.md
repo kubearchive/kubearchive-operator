@@ -1,121 +1,87 @@
 # kubearchive-operator
-// TODO(user): Add simple overview of use/purpose
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+This repository contains the installation operator for KubeArchive.
+This operator allows for users to install KubeArchive using a custom resource
+called `KubeArchiveInstallation`.
 
-## Getting Started
 
-### Prerequisites
-- go version v1.24.0+
-- docker version 17.03+.
-- kubectl version v1.11.3+.
-- Access to a Kubernetes v1.11.3+ cluster.
-
-### To Deploy on the cluster
-**Build and push your image to the location specified by `IMG`:**
+## Installing the operator via YAML
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/kubearchive-operator:tag
+kubectl apply -f https://github.com/kubearchive/kubearchive-operator/releases/download/<VERSION>/kubearchive-operator.yaml
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified.
-And it is required to have access to pull the image from the working environment.
-Make sure you have the proper permission to the registry if the above commands don’t work.
+## Install the operator using OLM
 
-**Install the CRDs into the cluster:**
+**Note**: you need OLM installed in your cluster, see
+[their documentation](https://olm.operatorframework.io/) for installation options.
+
+Create a new CatalogSource to pull the KubeArchive Operator from:
 
 ```sh
-make install
+$ cat kubearchive-operator-catalogsource.yaml
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: kubearchive-opeator-catalog
+  namespace: olm
+spec:
+  sourceType: grpc
+  image: quay.io/hemartin/kubearchive-operator-catalog:$VERSION
+  displayName: KubeArchive Catalog
+  publisher: github.com/kubearchive
+$ kubectl apply -f kubearchive-operator-catalogsource.yaml
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
+Create the `kubearchive-operator` namespace:
 
 ```sh
-make deploy IMG=<some-registry>/kubearchive-operator:tag
+$ kubectl create ns kubearchive-operator
 ```
 
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin
-privileges or be logged in as admin.
-
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+Create an OperatorGroup with an empty `spec`:
 
 ```sh
-kubectl apply -k config/samples/
+$ cat kubearchive-operatorgroup.yaml
+kind: OperatorGroup
+apiVersion: operators.coreos.com/v1
+metadata:
+  name: kubearchive-operator-og
+  namespace: kubearchive-operator
+spec: {}
+$ kubectl apply -f kubearchive-operatorgroup.yaml
 ```
-
->**NOTE**: Ensure that the samples has default values to test it out.
-
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
 
 ```sh
-kubectl delete -k config/samples/
+$ cat kubearchive-subscription.yaml
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: kubearchive
+  namespace: kubearchive-operator
+spec:
+  channel: alpha
+  installPlanApproval: Automatic
+  name: kubearchive-operator
+  source: kubearchive-operator-catalog
+  sourceNamespace: olm
+$ kubectl apply -f kubearchive-subscription.yaml
 ```
-
-**Delete the APIs(CRDs) from the cluster:**
-
-```sh
-make uninstall
-```
-
-**UnDeploy the controller from the cluster:**
-
-```sh
-make undeploy
-```
-
-## Project Distribution
-
-Following the options to release and provide this solution to the users.
-
-### By providing a bundle with all YAML files
-
-1. Build the installer for the image built and published in the registry:
-
-```sh
-make build-installer IMG=<some-registry>/kubearchive-operator:tag
-```
-
-**NOTE:** The makefile target mentioned above generates an 'install.yaml'
-file in the dist directory. This file contains all the resources built
-with Kustomize, which are necessary to install this project without its
-dependencies.
-
-2. Using the installer
-
-Users can just run 'kubectl apply -f <URL for YAML BUNDLE>' to install
-the project, i.e.:
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/<org>/kubearchive-operator/<tag or branch>/dist/install.yaml
-```
-
-### By providing a Helm Chart
-
-1. Build the chart using the optional helm plugin
-
-```sh
-operator-sdk edit --plugins=helm/v1-alpha
-```
-
-2. See that a chart was generated under 'dist/chart', and users
-can obtain this solution from there.
-
-**NOTE:** If you change the project, you need to update the Helm Chart
-using the same command above to sync the latest changes. Furthermore,
-if you create webhooks, you need to use the above command with
-the '--force' flag and manually ensure that any custom configuration
-previously added to 'dist/chart/values.yaml' or 'dist/chart/manager/manager.yaml'
-is manually re-applied afterwards.
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
 
-**NOTE:** Run `make help` for more information on all potential `make` targets
+### Development
 
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+To develop the operator use:
+
+```sh
+kind create cluster
+make install run
+```
+
+In a different terminal create a `KubeArchiveInstallation` to kick the Reconciliation loop.
 
 ## License
 
