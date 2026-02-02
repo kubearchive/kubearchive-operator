@@ -112,8 +112,6 @@ vet: ## Run go vet against code.
 test: manifests generate fmt vet setup-envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
-# TODO(user): To use a different vendor for e2e tests, modify the setup under 'tests/e2e'.
-# The default setup assumes Kind is pre-installed and builds/loads the Manager Docker image locally.
 # CertManager is installed by default; skip with:
 # - CERT_MANAGER_INSTALL_SKIP=true
 KIND_CLUSTER ?= kubearchive-operator-test-e2e
@@ -221,7 +219,7 @@ undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
 .PHONY: install-bundle
-install-bundle: bundle bundle-build bundle-push ## Deploy the bundle to the cluster
+install-bundle: bundle bundle-build bundle-push ## Deploy the bundle to the cluster, requires OLM to be installed
 	$(OPERATOR_SDK) run bundle $(BUNDLE_IMG)
 
 ##@ Dependencies

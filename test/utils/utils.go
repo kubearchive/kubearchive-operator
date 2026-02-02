@@ -32,7 +32,7 @@ const (
 	prometheusOperatorURL     = "https://github.com/prometheus-operator/prometheus-operator/" +
 		"releases/download/%s/bundle.yaml"
 
-	certmanagerVersion = "v1.16.3"
+	certmanagerVersion = "v1.19.2"
 	certmanagerURLTmpl = "https://github.com/cert-manager/cert-manager/releases/download/%s/cert-manager.yaml"
 )
 
@@ -171,9 +171,23 @@ func LoadImageToKindClusterWithName(name string) error {
 	if v, ok := os.LookupEnv("KIND_CLUSTER"); ok {
 		cluster = v
 	}
-	kindOptions := []string{"load", "docker-image", name, "--name", cluster}
-	cmd := exec.Command("kind", kindOptions...)
+
+	podmanOptions := []string{"save", name, "-o", "image.tgz"}
+	cmd := exec.Command("podman", podmanOptions...)
 	_, err := Run(cmd)
+	if err != nil {
+		return err
+	}
+
+	kindOptions := []string{"load", "image-archive", "image.tgz", "--name", cluster}
+	cmd = exec.Command("kind", kindOptions...)
+	_, err = Run(cmd)
+	if err != nil {
+		return err
+	}
+
+	cmd = exec.Command("rm", "image.tgz")
+	_, err = Run(cmd)
 	return err
 }
 

@@ -41,10 +41,13 @@ spec:
             description: KubeArchiveInstallationSpec defines the desired state of
               KubeArchiveInstallation.
             properties:
-              foo:
-                description: Foo is an example field of KubeArchiveInstallation. Edit
-                  kubearchiveinstallation_types.go to remove/update
+              version:
+                description: |-
+                  Version is the version of KubeArchive to install. See https://github.com/kubearchive/kubearchive/releases
+                  for a list of available versions
                 type: string
+            required:
+            - version
             type: object
           status:
             description: KubeArchiveInstallationStatus defines the observed state
