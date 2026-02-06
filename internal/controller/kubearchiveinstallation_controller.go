@@ -42,9 +42,21 @@ type KubeArchiveInstallationReconciler struct {
 	DynamicClient *dynamic.DynamicClient
 }
 
+// +kubebuilder:rbac:groups=kubearchive.org,resources="*",verbs="*"
 // +kubebuilder:rbac:groups=kubearchive.org,resources=kubearchiveinstallations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=kubearchive.org,resources=kubearchiveinstallations/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=kubearchive.org,resources=kubearchiveinstallations/finalizers,verbs=update
+// +kubebuilder:rbac:groups="",resources=namespaces;services,verbs=create;update;patch;get
+// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=create;patch;update
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=create;patch;update
+// +kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=create;patch;update;delete;get;list;watch
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;clusterroles;clusterrolebindings;rolebindings,verbs=create;patch;update;bind;delete;escalate;get;list;watch
+// +kubebuilder:rbac:groups=authorization.k8s.io,resources=tokenreviews,verbs=create;patch;update
+// +kubebuilder:rbac:groups=authentication.k8s.io,resources=subjectaccessreviews,verbs=create;patch;update
+// +kubebuilder:rbac:groups="",resources=configmaps;secrets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cert-manager.io,resources=issuers;certificates,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=batch,resources=cronjobs;jobs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations;validatingwebhookconfigurations,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

@@ -219,7 +219,7 @@ undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
 .PHONY: install-bundle
-install-bundle: bundle bundle-build bundle-push ## Deploy the bundle to the cluster, requires OLM to be installed
+install-bundle: build docker-build docker-push bundle bundle-build bundle-push ## Deploy the bundle to the cluster, requires OLM to be installed
 	$(OPERATOR_SDK) run bundle $(BUNDLE_IMG)
 
 ##@ Dependencies
