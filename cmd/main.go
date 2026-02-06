@@ -41,6 +41,7 @@ import (
 
 	kubearchiveorgv1 "github.com/kubearchive/kubearchive-operator/api/v1"
 	"github.com/kubearchive/kubearchive-operator/internal/controller"
+	webhookv1 "github.com/kubearchive/kubearchive-operator/internal/webhook/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -211,6 +212,13 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "KubeArchiveInstallation")
 		os.Exit(1)
+	}
+	// nolint:goconst
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err := webhookv1.SetupKubeArchiveInstallationWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "KubeArchiveInstallation")
+			os.Exit(1)
+		}
 	}
 	// +kubebuilder:scaffold:builder
 
